@@ -72,7 +72,7 @@ function App(){
  const months=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
  return React.createElement('div',{className:`min-h-screen bg-[var(--bg)] text-[var(--ink)]`},
   React.createElement('div',{className:`sticky top-0 z-40 border-b ${fbReady?'bg-emerald-500 text-white':'bg-amber-200 text-black'} px-4 py-2 flex justify-between mono text-[12px]`},
-   React.createElement('span',{},fbReady?'🔴 LIVE • Colombo Fixed • Single Pool • Admin Locked':'LOCAL MODE'),
+   React.createElement('span',{},fbReady?'🔴 LIVE • Single Pool • Admin Locked':'LOCAL MODE'),
    React.createElement('div',{className:'flex gap-2'},
     React.createElement('button',{onClick:()=>setDark(!dark),className:'px-3 py-1 rounded-full bg-black/10 border text-[11px] mono uppercase'},dark?'☀️ Light':'🌙 Dark'),
     !isAdmin?React.createElement('button',{onClick:()=>setShowLogin(true),className:'px-3 py-1 bg-[var(--accent)] text-[var(--bg)] mono uppercase text-[11px] font-bold'},'Admin Login'):
@@ -87,7 +87,7 @@ function App(){
     React.createElement('div',{},
      React.createElement('h1',{className:'text-[32px] md:text-[48px] font-black uppercase leading-[0.9] tracking-[-0.02em]'},'Information Desk Roster'),
      React.createElement('div',{className:'mt-2 flex flex-wrap items-center gap-3 mono text-[11px] uppercase tracking-widest opacity-80'},
-      React.createElement('span',{className:'flex items-center gap-2'},React.createElement('span',{className:'h-2 w-2 rounded-full bg-[#ff3b30] live-blink'}),'NIPO • Colombo Fixed • Live'),
+      React.createElement('span',{className:'flex items-center gap-2'},React.createElement('span',{className:'h-2 w-2 rounded-full bg-[#ff3b30] live-blink'}),'NIPO •  Live'),
       React.createElement('span',{},`• ${new Date().toLocaleDateString('en-GB',{timeZone:'Asia/Colombo',day:'2-digit',month:'long',year:'numeric'})} • Colombo`),
       React.createElement('span',{className:'hidden md:inline'},'• Single Pool • Admin Locked')
      )
@@ -139,14 +139,14 @@ function App(){
      )
     ),
     isAdmin?React.createElement('div',{className:'bg-[var(--accent)] text-[var(--bg)] p-4'},
-     React.createElement('h3',{className:'mono text-[12px] uppercase font-semibold'},'Swap - ADMIN ONLY - Colombo Fixed'),
-     React.createElement('p',{className:'mono text-[10px] opacity-70 mt-1'},'Uses colomboDateStr - 19 will show as 19, not 20'),
+     React.createElement('h3',{className:'mono text-[12px] uppercase font-semibold'},'Swap - ADMIN ONLY'),
+     React.createElement('p',{className:'mono text-[10px] opacity-70 mt-1'},''),
      React.createElement('div',{className:'mt-3 grid grid-cols-2 gap-2'},
       React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date A'),React.createElement('select',{value:selA,onChange:e=>setSelA(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),workingDays.map(dt=>{const ds=colomboDateStr(dt);return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${fin[ds]?.info||''}/${fin[ds]?.lunch||''}`)}))),
       React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date B'),React.createElement('select',{value:selB,onChange:e=>setSelB(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),workingDays.map(dt=>{const ds=colomboDateStr(dt);return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${fin[ds]?.info||''}/${fin[ds]?.lunch||''}`)})))
      ),
      React.createElement('div',{className:'mt-2 flex gap-2'},['info','lunch'].map(t=>React.createElement('button',{key:t,onClick:()=>setPoolType(t),className:`flex-1 py-2 mono text-[11px] uppercase border ${poolType===t?'bg-white text-black':'border-white/30 text-white/70'}`},t))),
-     React.createElement('button',{onClick:doSwap,className:'mt-3 w-full bg-white text-black py-2.5 mono text-[12px] uppercase font-bold'},'Create Swap - Colombo Fixed'),
+     React.createElement('button',{onClick:doSwap,className:'mt-3 w-full bg-white text-black py-2.5 mono text-[12px] uppercase font-bold'},'Create Swap'),
      swaps.filter(s=>s.monthKey===monthKey).length>0&&React.createElement('div',{className:'mt-3 border-t border-white/15 pt-2'},React.createElement('div',{className:'flex justify-between mono text-[10px] uppercase opacity-60'},React.createElement('span',{},`${swaps.filter(s=>s.monthKey===monthKey).length} swaps`),React.createElement('button',{onClick:()=>{const up=swaps.filter(s=>s.monthKey!==monthKey);setSwaps(up);saveAll({swaps:up});}},'Clear this month')),swaps.filter(s=>s.monthKey===monthKey).map(s=>React.createElement('div',{key:s.id,className:'flex justify-between bg-white/10 px-2 py-1 mono text-[10px] mt-1'},React.createElement('span',{},`${s.dateA} ↔ ${s.dateB} ${s.type} ${s.officerA_before}↔${s.officerB_before}`),React.createElement('button',{onClick:()=>{const up=swaps.filter(x=>x.id!==s.id);setSwaps(up);saveAll({swaps:up});}},'✕'))))
     ):React.createElement('div',{className:'bg-[var(--surface)] border border-dashed p-6 text-center'},
      React.createElement('div',{className:'mono text-[12px] uppercase opacity-60'},'🔒 Admin Only'),
