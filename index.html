@@ -128,14 +128,14 @@ function App(){
      )
     ),
     isAdmin?React.createElement('div',{className:'bg-[var(--accent)] text-[var(--bg)] p-4'},
-     React.createElement('h3',{className:'mono text-[12px] uppercase font-semibold'},'Swap - ADMIN ONLY - Colombo Fixed'),
+     React.createElement('h3',{className:'mono text-[12px] uppercase font-semibold'},'Swap - ADMIN ONLY'),
      React.createElement('p',{className:'mono text-[10px] opacity-70 mt-1'},''),
      React.createElement('div',{className:'mt-3 grid grid-cols-2 gap-2'},
       React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date A'),React.createElement('select',{value:selA,onChange:e=>setSelA(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),workingDays.map(dt=>{const ds=colomboDateStr(dt);return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${fin[ds]?.info||''}/${fin[ds]?.lunch||''}`)}))),
       React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date B'),React.createElement('select',{value:selB,onChange:e=>setSelB(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),workingDays.map(dt=>{const ds=colomboDateStr(dt);return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${fin[ds]?.info||''}/${fin[ds]?.lunch||''}`)})))
      ),
      React.createElement('div',{className:'mt-2 flex gap-2'},['info','lunch'].map(t=>React.createElement('button',{key:t,onClick:()=>setPoolType(t),className:`flex-1 py-2 mono text-[11px] uppercase border ${poolType===t?'bg-white text-black':'border-white/30 text-white/70'}`},t))),
-     React.createElement('button',{onClick:doSwap,className:'mt-3 w-full bg-white text-black py-2.5 mono text-[12px] uppercase font-bold'},'Create Swap - Colombo Fixed'),
+     React.createElement('button',{onClick:doSwap,className:'mt-3 w-full bg-white text-black py-2.5 mono text-[12px] uppercase font-bold'},'Create Swap'),
      swaps.filter(s=>s.monthKey===monthKey).length>0&&React.createElement('div',{className:'mt-3 border-t border-white/15 pt-2'},React.createElement('div',{className:'flex justify-between mono text-[10px] uppercase opacity-60'},React.createElement('span',{},`${swaps.filter(s=>s.monthKey===monthKey).length} swaps`),React.createElement('button',{onClick:()=>{const up=swaps.filter(s=>s.monthKey!==monthKey);setSwaps(up);saveAll({swaps:up});}},'Clear this month')),swaps.filter(s=>s.monthKey===monthKey).map(s=>React.createElement('div',{key:s.id,className:'flex justify-between bg-white/10 px-2 py-1 mono text-[10px] mt-1'},React.createElement('span',{},`${s.dateA} ↔ ${s.dateB} ${s.type} ${s.officerA_before}↔${s.officerB_before}`),React.createElement('button',{onClick:()=>{const up=swaps.filter(x=>x.id!==s.id);setSwaps(up);saveAll({swaps:up});}},'✕'))))
     ):React.createElement('div',{className:'bg-[var(--surface)] border border-dashed p-6 text-center'},
      React.createElement('div',{className:'mono text-[12px] uppercase opacity-60'},'🔒 Admin Only'),
