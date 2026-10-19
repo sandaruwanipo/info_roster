@@ -176,45 +176,17 @@ function App(){
     )
    ),
    React.createElement('div',{className:'col-span-12 lg:col-span-8 space-y-4'},
-    // NEW: Officer Tiles above main table
-    React.createElement('div',{className:'bg-[var(--surface)] border border-[var(--border)] p-4'},
-     React.createElement('div',{className:'flex justify-between items-center'},
-      React.createElement('h3',{className:'mono text-[12px] uppercase font-bold tracking-widest'},'Officers • Tap to see dates'),
-      React.createElement('div',{className:'flex gap-2'},
-       React.createElement('button',{onClick:()=>setFilter('ALL'),className:`px-3 py-1 mono text-[10px] uppercase border ${filter==='ALL'?'bg-[var(--accent)] text-[var(--bg)] border-[var(--accent)]':'bg-[var(--surface-2)] border-[var(--border)]'}`},'Show All'),
-       filter!=='ALL'&&React.createElement('span',{className:'mono text-[10px] px-2 py-1 bg-amber-100 border border-amber-200'},`${filter} • ${filtered.length} days`)
-      )
-     ),
-     React.createElement('div',{className:'mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2'},
+    // Small name tiles filter - minimal
+    React.createElement('div',{className:'bg-[var(--surface)] border border-[var(--border)] px-4 py-3'},
+     React.createElement('div',{className:'flex flex-wrap items-center gap-2'},
+      React.createElement('span',{className:'mono text-[10px] uppercase tracking-widest opacity-60 mr-1'},'Filter by officer:'),
+      React.createElement('button',{onClick:()=>setFilter('ALL'),className:`px-3 py-1.5 mono text-[11px] uppercase font-bold border transition ${filter==='ALL'?'bg-[var(--accent)] text-[var(--bg)] border-[var(--accent)]':'bg-[var(--surface-2)] border-[var(--border)] hover:border-[var(--ink)]'}`},'All'),
       officerPool.map(name=>{
-       const stats=officerStats[name]||{info:[],lunch:[],total:0};
        const isActive=filter===name;
-       const isTodayOfficer=workingDays.some(dt=>{const ds=colomboDateStr(dt);return ds===colomboDateStr(new Date())&&(fin[ds]?.info===name||fin[ds]?.lunch===name);});
-       return React.createElement('button',{key:name,onClick:()=>{setFilter(isActive?'ALL':name);if(!isActive){const el=document.getElementById('roster-table');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}},className:`text-left p-3 border transition-all ${isActive?'bg-[var(--accent)] text-[var(--bg)] border-[var(--accent)] shadow-lg scale-[1.02]':'bg-[var(--surface-2)] border-[var(--border)] hover:border-[var(--accent)] hover:bg-[var(--surface)]'} ${isTodayOfficer?'ring-2 ring-[#ff3b30] ring-offset-1':''}`},
-        React.createElement('div',{className:'flex justify-between items-start'},
-         React.createElement('span',{className:'mono text-[12px] font-bold leading-tight'},name),
-         isTodayOfficer&&React.createElement('span',{className:'h-2 w-2 rounded-full bg-[#ff3b30] animate-pulse'})
-        ),
-        React.createElement('div',{className:'mt-2 flex gap-2 mono text-[9px]'},
-         React.createElement('span',{className:`px-1.5 py-0.5 rounded-full ${isActive?'bg-white/20':'bg-[#ff3b30]/10 text-[#ff3b30] border border-[#ff3b30]/20'}`},`${stats.info.length} Info`),
-         React.createElement('span',{className:`px-1.5 py-0.5 rounded-full ${isActive?'bg-white/20':'bg-[#ff9500]/10 text-[#ff9500] border border-[#ff9500]/20'}`},`${stats.lunch.length} Lunch`)
-        ),
-        React.createElement('div',{className:`mt-1 mono text-[9px] ${isActive?'opacity-70':'opacity-50'}`},`${stats.total} total • Tap to filter`),
-        isActive&&React.createElement('div',{className:'mt-2 mono text-[9px] bg-white/15 p-1 rounded'},
-         stats.info.slice(0,3).map(d=>React.createElement('div',{key:'i-'+d},`Info: ${d.slice(8)}`)),
-         stats.lunch.slice(0,3).map(d=>React.createElement('div',{key:'l-'+d},`Lunch: ${d.slice(8)}`)),
-         (stats.info.length+stats.lunch.length)>6&&React.createElement('div',{},`+${stats.info.length+stats.lunch.length-6} more`)
-        )
-       );
+       return React.createElement('button',{key:name,onClick:()=>setFilter(isActive?'ALL':name),className:`px-3 py-1.5 mono text-[11px] uppercase border transition ${isActive?'bg-[var(--accent)] text-[var(--bg)] border-[var(--accent)] shadow-sm':'bg-white dark:bg-[var(--surface-2)] border-[var(--border)] hover:bg-[var(--surface-2)] hover:border-[var(--ink)]'}`},name);
       })
      ),
-     filter!=='ALL'&&React.createElement('div',{className:'mt-3 p-3 bg-amber-50 border border-amber-200 mono text-[11px]'},
-      React.createElement('div',{className:'font-bold'},`${filter}'s Dates this month:`),
-      React.createElement('div',{className:'mt-1 flex flex-wrap gap-1'},
-       (officerStats[filter]?.info||[]).map(d=>React.createElement('span',{key:'i-'+d,className:'px-2 py-0.5 bg-[#ff3b30] text-white rounded-full text-[10px]'},`Info ${d.slice(5)}`)),
-       (officerStats[filter]?.lunch||[]).map(d=>React.createElement('span',{key:'l-'+d,className:'px-2 py-0.5 bg-[#ff9500] text-white rounded-full text-[10px]'},`Lunch ${d.slice(5)}`))
-      )
-     )
+     filter!=='ALL'&&React.createElement('div',{className:'mt-2 mono text-[11px] opacity-70'},`Showing ${filtered.length} days for ${filter} • `,React.createElement('button',{onClick:()=>setFilter('ALL'),className:'underline'},'Clear filter'))
     ),
     React.createElement('div',{id:'roster-table',className:'bg-[var(--surface)] border border-[var(--border)] overflow-hidden'},
      React.createElement('div',{className:'flex justify-between px-4 py-4 border-b bg-[var(--surface-2)]'},
