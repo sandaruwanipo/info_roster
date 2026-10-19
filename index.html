@@ -129,7 +129,7 @@ function App(){
     ),
     isAdmin?React.createElement('div',{className:'bg-[var(--accent)] text-[var(--bg)] p-4'},
      React.createElement('h3',{className:'mono text-[12px] uppercase font-semibold'},'Swap - ADMIN ONLY - Colombo Fixed'),
-     React.createElement('p',{className:'mono text-[10px] opacity-70 mt-1'},'Uses colomboDateStr - 19 will show as 19, not 20'),
+     React.createElement('p',{className:'mono text-[10px] opacity-70 mt-1'},''),
      React.createElement('div',{className:'mt-3 grid grid-cols-2 gap-2'},
       React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date A'),React.createElement('select',{value:selA,onChange:e=>setSelA(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),workingDays.map(dt=>{const ds=colomboDateStr(dt);return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${fin[ds]?.info||''}/${fin[ds]?.lunch||''}`)}))),
       React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date B'),React.createElement('select',{value:selB,onChange:e=>setSelB(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),workingDays.map(dt=>{const ds=colomboDateStr(dt);return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${fin[ds]?.info||''}/${fin[ds]?.lunch||''}`)})))
