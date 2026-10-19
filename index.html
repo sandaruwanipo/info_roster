@@ -271,14 +271,14 @@ function App(){
      React.createElement('p',{className:'mono text-[11px] opacity-70 mt-1'},'Only 2 nearest dates swap, not whole month. Shows may cover tags.'),
      React.createElement('div',{className:'mt-4 grid grid-cols-2 gap-2'},
       React.createElement('div',{},
-       React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date A'),
+       React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Change From'),
        React.createElement('select',{value:selA, onChange:e=>setSelA(e.target.value), className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},
         React.createElement('option',{value:'',className:'text-black'},'Select'),
         days.map(d=> React.createElement('option',{key:d.toISOString().split('T')[0], value:d.toISOString().split('T')[0], className:'text-black'}, d.toISOString().split('T')[0]))
        )
       ),
       React.createElement('div',{},
-       React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date B'),
+       React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Change To'),
        React.createElement('select',{value:selB, onChange:e=>setSelB(e.target.value), className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},
         React.createElement('option',{value:'',className:'text-black'},'Select'),
         days.map(d=> React.createElement('option',{key:d.toISOString().split('T')[0], value:d.toISOString().split('T')[0], className:'text-black'}, d.toISOString().split('T')[0]))
