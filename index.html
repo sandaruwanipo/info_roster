@@ -139,7 +139,7 @@ function App(){
      swaps.filter(s=>s.monthKey===monthKey).length>0&&React.createElement('div',{className:'mt-3 border-t border-white/15 pt-2'},React.createElement('div',{className:'flex justify-between mono text-[10px] uppercase opacity-60'},React.createElement('span',{},`${swaps.filter(s=>s.monthKey===monthKey).length} swaps`),React.createElement('button',{onClick:()=>{const up=swaps.filter(s=>s.monthKey!==monthKey);setSwaps(up);saveAll({swaps:up});}},'Clear this month')),swaps.filter(s=>s.monthKey===monthKey).map(s=>React.createElement('div',{key:s.id,className:'flex justify-between bg-white/10 px-2 py-1 mono text-[10px] mt-1'},React.createElement('span',{},`${s.dateA} ↔ ${s.dateB} ${s.type} ${s.officerA_before}↔${s.officerB_before}`),React.createElement('button',{onClick:()=>{const up=swaps.filter(x=>x.id!==s.id);setSwaps(up);saveAll({swaps:up});}},'✕'))))
     ):React.createElement('div',{className:'bg-[var(--surface)] border border-dashed p-6 text-center'},
      React.createElement('div',{className:'mono text-[12px] uppercase opacity-60'},'🔒 Admin Only'),
-     React.createElement('p',{className:'mono text-[11px] opacity-50 mt-1'},'Swap is admin only - login to swap 19-21 correctly'),
+     React.createElement('p',{className:'mono text-[11px] opacity-50 mt-1'},'Swap is admin only - login to swap'),
      React.createElement('button',{onClick:()=>setShowLogin(true),className:'mt-3 px-4 py-2 bg-[var(--accent)] text-[var(--bg)] mono text-[11px] uppercase font-bold'},'Login')
     )
    ),
