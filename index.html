@@ -66,6 +66,47 @@ function App(){
  const allDays=[];let tmp=new Date(year,month,1);while(tmp.getMonth()===month){allDays.push(new Date(tmp));tmp.setDate(tmp.getDate()+1);}
  const holidaysThisMonth=allDays.filter(dt=>HOLIDAYS_2026[colomboDateStr(dt)]).map(dt=>({date:dt,name:HOLIDAYS_2026[colomboDateStr(dt)]}));
  const workingDays=allDays.filter(dt=>{const wd=dt.getDay();if(wd===0||wd===6)return false;if(HOLIDAYS_2026[colomboDateStr(dt)])return false;return true;});
+
+ // Generate extended working days array (20 days before and 20 days after today) for flexible swap selection
+ const generateMonthWorkingDays=(y,m)=>{
+  const mKey=`${y}-${String(m+1).padStart(2,'0')}`;
+  const mStarter=starters[mKey]||{info:officerPool[0],lunch:officerPool[0]};
+  const rI=getRotated(officerPool,mStarter.info);
+  const rL=getRotated(officerPool,mStarter.lunch);
+  const days=[];let dTmp=new Date(y,m,1);
+  while(dTmp.getMonth()===m){days.push(new Date(dTmp));dTmp.setDate(dTmp.getDate()+1);}
+  const wDays=days.filter(dt=>{const wd=dt.getDay();if(wd===0||wd===6)return false;if(HOLIDAYS_2026[colomboDateStr(dt)])return false;return true;});
+  const map={};
+  wDays.forEach((dt,i)=>{
+   const ds=colomboDateStr(dt);
+   map[ds]={info:rI[i%rI.length],lunch:rL[i%rL.length]};
+  });
+  return map;
+ };
+
+ const swapRangeDays=[];
+ for(let offset=-20;offset<=20;offset++){
+  const d=new Date(now);d.setDate(d.getDate()+offset);
+  const wd=d.getDay();
+  if(wd!==0&&wd!==6&&!HOLIDAYS_2026[colomboDateStr(d)]){
+   swapRangeDays.push(new Date(d));
+  }
+ }
+ const swapWorkingDays=swapRangeDays.sort((a,b)=>a-b);
+
+ // Compute mappings for swap options across relevant months
+ const mapMonthData={};
+ swapWorkingDays.forEach(dt=>{
+  const y=dt.getFullYear();const m=dt.getMonth();const mk=`${y}-${m}`;
+  if(!mapMonthData[mk])mapMonthData[mk]=generateMonthWorkingDays(y,m);
+ });
+ const swapOrig={};
+ swapWorkingDays.forEach(dt=>{
+  const ds=colomboDateStr(dt);
+  const y=dt.getFullYear();const m=dt.getMonth();const mk=`${y}-${m}`;
+  if(mapMonthData[mk]&&mapMonthData[mk][ds])swapOrig[ds]={...mapMonthData[mk][ds]};
+ });
+
  const orig={};workingDays.forEach((dt,i)=>{const ds=colomboDateStr(dt);orig[ds]={info:rotInfo[i%rotInfo.length],lunch:rotLunch[i%rotLunch.length]};});
  const fin={};Object.keys(orig).forEach(k=>{fin[k]={...orig[k]};});
  const swappedDates=new Set();
@@ -87,7 +128,7 @@ function App(){
  workingDays.forEach(dt=>{const ds=colomboDateStr(dt);const f=fin[ds];if(!f)return;if(officerStats[f.info]){officerStats[f.info].info.push(ds);officerStats[f.info].total++;}if(officerStats[f.lunch]){officerStats[f.lunch].lunch.push(ds);officerStats[f.lunch].total++;}});
  const filtered=filter==='ALL'?workingDays:workingDays.filter(dt=>{const ds=colomboDateStr(dt);if(swappedDates.has(ds))return true;const f=fin[ds];return f&&(f.info===filter||f.lunch===filter);});
  const hm=now.getHours()*60+now.getMinutes();const infoLive=hm>=8*60+45&&hm<=16*60;const lunchLive=hm>=12*60+30&&hm<=13*60;
- const doSwap=()=>{if(!isAdmin){setToast('🔒 Admin only - Login first');setTimeout(()=>setToast(null),2500);return;}if(!selA||!selB||selA===selB){setToast('Select 2 different dates');setTimeout(()=>setToast(null),2500);return;}const offA=poolType==='info'?fin[selA]?.info:fin[selA]?.lunch;const offB=poolType==='info'?fin[selB]?.info:fin[selB]?.lunch;if(!offA||!offB){setToast('Must be working days');setTimeout(()=>setToast(null),2500);return;}const newS={id:`${Date.now()}`,dateA:selA,dateB:selB,type:poolType,officerA_before:offA,officerB_before:offB,monthKey,createdAt:new Date().toISOString()};const up=[...swaps,newS];setSwaps(up);saveAll({swaps:up,lastUpdated:new Date().toISOString()});setSelA('');setSelB('');setFilter('ALL');setToast(`✅ Swapped ${selA.slice(8)} ↔ ${selB.slice(8)} (${poolType}) - exact Colombo dates`);setTimeout(()=>setToast(null),4000);};
+ const doSwap=()=>{if(!isAdmin){setToast('🔒 Admin only - Login first');setTimeout(()=>setToast(null),2500);return;}if(!selA||!selB||selA===selB){setToast('Select 2 different dates');setTimeout(()=>setToast(null),2500);return;}const offA=poolType==='info'?(fin[selA]?.info||swapOrig[selA]?.info):(fin[selA]?.lunch||swapOrig[selA]?.lunch);const offB=poolType==='info'?(fin[selB]?.info||swapOrig[selB]?.info):(fin[selB]?.lunch||swapOrig[selB]?.lunch);if(!offA||!offB){setToast('Must be working days');setTimeout(()=>setToast(null),2500);return;}const newS={id:`${Date.now()}`,dateA:selA,dateB:selB,type:poolType,officerA_before:offA,officerB_before:offB,monthKey,createdAt:new Date().toISOString()};const up=[...swaps,newS];setSwaps(up);saveAll({swaps:up,lastUpdated:new Date().toISOString()});setSelA('');setSelB('');setFilter('ALL');setToast(`✅ Swapped ${selA.slice(8)} ↔ ${selB.slice(8)} (${poolType}) - exact Colombo dates`);setTimeout(()=>setToast(null),4000);};
  const movePerson=(idx,dir)=>{if(!isAdmin){setToast('🔒 Admin only');setTimeout(()=>setToast(null),2000);return;}const pool=[...officerPool];const newIdx=idx+dir;if(newIdx<0||newIdx>=pool.length)return;const[moved]=pool.splice(idx,1);pool.splice(newIdx,0,moved);setOfficerPool(pool);saveAll({officerPool:pool});};
  const removePerson=(name)=>{if(!isAdmin){setToast('🔒 Admin only');setTimeout(()=>setToast(null),2000);return;}const up=officerPool.filter(n=>n!==name);setOfficerPool(up);saveAll({officerPool:up});setToast(`Removed ${name}`);setTimeout(()=>setToast(null),2000);};
  const addPerson=()=>{if(!isAdmin){setToast('🔒 Admin only');setTimeout(()=>setToast(null),2000);return;}const name=newOfficerName.trim().toUpperCase();if(!name){setToast('Enter name');setTimeout(()=>setToast(null),2000);return;}if(officerPool.includes(name)){setToast('Exists');setTimeout(()=>setToast(null),2000);return;}const up=[...officerPool,name];setOfficerPool(up);saveAll({officerPool:up});setNewOfficerName('');setToast(`Added ${name}`);setTimeout(()=>setToast(null),2000);};
@@ -161,10 +202,10 @@ function App(){
      )
     ),
     isAdmin?React.createElement('div',{className:'bg-[var(--accent)] text-[var(--bg)] p-4'},
-     React.createElement('h3',{className:'mono text-[12px] uppercase font-semibold'},'Swap - ADMIN ONLY'),
+     React.createElement('h3',{className:'mono text-[12px] uppercase font-semibold'},'Swap - ADMIN ONLY (-20d to +20d)'),
      React.createElement('div',{className:'mt-3 grid grid-cols-2 gap-2'},
-      React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date A'),React.createElement('select',{value:selA,onChange:e=>setSelA(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),workingDays.map(dt=>{const ds=colomboDateStr(dt);return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${fin[ds]?.info||''}/${fin[ds]?.lunch||''}`)}))),
-      React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date B'),React.createElement('select',{value:selB,onChange:e=>setSelB(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),workingDays.map(dt=>{const ds=colomboDateStr(dt);return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${fin[ds]?.info||''}/${fin[ds]?.lunch||''}`)})))
+      React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date A'),React.createElement('select',{value:selA,onChange:e=>setSelA(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),swapWorkingDays.map(dt=>{const ds=colomboDateStr(dt);const infoVal=fin[ds]?.info||swapOrig[ds]?.info||'';const lunchVal=fin[ds]?.lunch||swapOrig[ds]?.lunch||'';return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${infoVal}/${lunchVal}`)}))),
+      React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date B'),React.createElement('select',{value:selB,onChange:e=>setSelB(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),swapWorkingDays.map(dt=>{const ds=colomboDateStr(dt);const infoVal=fin[ds]?.info||swapOrig[ds]?.info||'';const lunchVal=fin[ds]?.lunch||swapOrig[ds]?.lunch||'';return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${infoVal}/${lunchVal}`)})))
      ),
      React.createElement('div',{className:'mt-2 flex gap-2'},['info','lunch'].map(t=>React.createElement('button',{key:t,onClick:()=>setPoolType(t),className:`flex-1 py-2 mono text-[11px] uppercase border ${poolType===t?'bg-white text-black':'border-white/30 text-white/70'}`},t))),
      React.createElement('button',{onClick:doSwap,className:'mt-3 w-full bg-white text-black py-2.5 mono text-[12px] uppercase font-bold'},'Create Swap'),
