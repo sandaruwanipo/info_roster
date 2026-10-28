@@ -59,8 +59,14 @@ function App(){
  useEffect(()=>{const saved=localStorage.getItem('nipo_perfect_final');if(saved){try{const d=JSON.parse(saved);if(d.officerPool)setOfficerPool(d.officerPool);else if(d.infoPool)setOfficerPool(d.infoPool);if(d.swaps)setSwaps(d.swaps);if(d.starters)setStarters(d.starters);if(d.lastUpdated)setLastUpdated(d.lastUpdated);}catch{}}},[]);
  useEffect(()=>{(async()=>{const ok=await initFB();if(ok){setFbReady(true);const r=fb.doc(db,"nipoRoster","live");fb.onSnapshot(r,(snap)=>{const v=snap.exists()?snap.data():null;if(v){if(v.officerPool)setOfficerPool(v.officerPool);else if(v.infoPool)setOfficerPool(v.infoPool);if(v.swaps)setSwaps(v.swaps);if(v.starters)setStarters(v.starters);if(v.lastUpdated)setLastUpdated(v.lastUpdated);}});}})()},[]);
  const saveAll=async(o)=>{const pool=o.officerPool??officerPool;const data={officerPool:pool,infoPool:pool,lunchPool:pool,swaps:o.swaps??swaps,starters:o.starters??starters,lastUpdated:o.lastUpdated??new Date().toISOString()};localStorage.setItem('nipo_perfect_final',JSON.stringify(data));if(fbReady&&db){try{await fb.setDoc(fb.doc(db,"nipoRoster","live"),data,{merge:true});}catch{}}};
+ 
  const monthKey=`${year}-${String(month+1).padStart(2,'0')}`;
+ const nextMDate=new Date(year,month+1,1);
+ const nextMonthKey=`${nextMDate.getFullYear()}-${String(nextMDate.getMonth()+1).padStart(2,'0')}`;
+
  const curStarter=starters[monthKey]||{info:officerPool[0],lunch:officerPool[0]};
+ const nextStarter=starters[nextMonthKey]||{info:officerPool[0],lunch:officerPool[0]};
+
  const getRotated=(pool,starter)=>{if(!starter)return pool;const idx=pool.indexOf(starter);if(idx<=0)return pool;return[...pool.slice(idx),...pool.slice(0,idx)];};
  const rotInfo=getRotated(officerPool,curStarter.info);const rotLunch=getRotated(officerPool,curStarter.lunch);
  const allDays=[];let tmp=new Date(year,month,1);while(tmp.getMonth()===month){allDays.push(new Date(tmp));tmp.setDate(tmp.getDate()+1);}
@@ -177,17 +183,38 @@ function App(){
       )
      ),
      React.createElement('div',{className:'mt-2 text-[28px] font-bold'},`${months[month]} ${year}`),
-     React.createElement('div',{className:'mt-3 grid grid-cols-2 gap-2'},
-      React.createElement('div',{},
-       React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Info Starter (Admin)'),
-       React.createElement('select',{value:curStarter.info,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[monthKey]:{...curStarter,info:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'i-'+o,value:o},o)))
-      ),
-      React.createElement('div',{},
-       React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Lunch Starter (Admin)'),
-       React.createElement('select',{value:curStarter.lunch,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[monthKey]:{...curStarter,lunch:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'l-'+o,value:o},o)))
+     
+     // Current Month Starters Setup
+     React.createElement('div',{className:'mt-3 border-t border-[var(--border)] pt-2'},
+      React.createElement('div',{className:'mono text-[10px] font-bold uppercase opacity-80 mb-1'},`THIS MONTH (${months[month]}) STARTERS`),
+      React.createElement('div',{className:'grid grid-cols-2 gap-2'},
+       React.createElement('div',{},
+        React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Info Starter'),
+        React.createElement('select',{value:curStarter.info,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[monthKey]:{...curStarter,info:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'i-'+o,value:o},o)))
+       ),
+       React.createElement('div',{},
+        React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Lunch Starter'),
+        React.createElement('select',{value:curStarter.lunch,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[monthKey]:{...curStarter,lunch:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'l-'+o,value:o},o)))
+       )
       )
      ),
-     !isAdmin&&React.createElement('div',{className:'mt-2 mono text-[10px] opacity-50'},'🔒 Login to change starters'),
+
+     // Next Month Starters Setup (Admin functionality)
+     React.createElement('div',{className:'mt-3 border-t border-[var(--border)] pt-2'},
+      React.createElement('div',{className:'mono text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 mb-1'},`NEXT MONTH (${months[nextMDate.getMonth()]}) STARTERS (ADMIN)`),
+      React.createElement('div',{className:'grid grid-cols-2 gap-2'},
+       React.createElement('div',{},
+        React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Next Info Starter'),
+        React.createElement('select',{value:nextStarter.info,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[nextMonthKey]:{...nextStarter,info:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'ni-'+o,value:o},o)))
+       ),
+       React.createElement('div',{},
+        React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Next Lunch Starter'),
+        React.createElement('select',{value:nextStarter.lunch,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[nextMonthKey]:{...nextStarter,lunch:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'nl-'+o,value:o},o)))
+       )
+      )
+     ),
+
+     !isAdmin&&React.createElement('div',{className:'mt-2 mono text-[10px] opacity-50'},'🔒 Login to change current & next month starters'),
      React.createElement('div',{className:'mt-3 mono text-[11px] opacity-60'},`${workingDays.length} working days • ${holidaysThisMonth.length} holidays excluded`),
      holidaysThisMonth.length>0&&React.createElement('div',{className:'mt-2 bg-amber-50 border border-amber-200 p-2 mono text-[10px]'},holidaysThisMonth.map(h=>React.createElement('div',{key:colomboDateStr(h.date)},`${colomboDateStr(h.date)} - ${h.name}`)))
     ),
@@ -274,5 +301,5 @@ function App(){
 }
 createRoot(document.getElementById('root')).render(React.createElement(App));
 </script>
-<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</body>
 </html>
